@@ -1,0 +1,6 @@
+/build
+/.internal
+/.defold-mcp-backups
+/tools/out
+/dist
+/bob.jar
