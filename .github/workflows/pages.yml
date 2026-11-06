@@ -38,6 +38,12 @@ jobs:
         run: |
           java -jar bob.jar --platform wasm-web --architectures wasm-web --variant debug \
             --archive --output build/debugweb --bundle-output dist_debug resolve build bundle
+      - name: Build Android APK
+        continue-on-error: true
+        run: |
+          java -jar bob.jar --platform armv7-android --architectures armv7-android,arm64-android --variant release \
+            --bundle-format apk --archive --output build/android --bundle-output dist_apk resolve build bundle
+          find dist_apk -name "*.apk" -exec ls -la {} \;
       - name: Prepare site
         run: |
           mkdir site
@@ -54,6 +60,8 @@ jobs:
           fi
           grep -n "dmloader\|archive" site/index.html | head || true
           grep -n '"archive' site/dmloader_*.js | head  || true
+          APK=$(find dist_apk -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$APK" ]; then cp "$APK" site/ghostfarm.apk; fi
           mkdir site/debug
           cp -r dist_debug/*/* site/debug/
           ls -la site site/debug
