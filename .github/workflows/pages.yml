@@ -39,6 +39,13 @@ jobs:
           mkdir site
           cp -r dist/*/* site/
           touch site/.nojekyll
+          # свои имена файлов игры у каждой сборки: браузер не возьмёт старые из кэша (Pages кэширует 10 мин)
+          V=${GITHUB_SHA::8}
+          if [ -d site/archive ] && grep -q '"archive" + path' site/index.html; then
+            mv site/archive "site/archive_$V"
+            sed -i "s|\"archive\" + path|\"archive_$V\" + path|" site/index.html
+          fi
+          grep -n "archive" site/index.html | head
           ls -la site
       - uses: actions/upload-pages-artifact@v3
         with:
