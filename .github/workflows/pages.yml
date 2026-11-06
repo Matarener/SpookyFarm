@@ -34,6 +34,10 @@ jobs:
         run: |
           java -jar bob.jar --platform wasm-web --architectures wasm-web --variant release \
             --archive --bundle-output dist resolve build bundle
+      - name: Build HTML5 debug (engine profiler)
+        run: |
+          java -jar bob.jar --platform wasm-web --architectures wasm-web --variant debug \
+            --archive --output build/debugweb --bundle-output dist_debug resolve build bundle
       - name: Prepare site
         run: |
           mkdir site
@@ -50,7 +54,9 @@ jobs:
           fi
           grep -n "dmloader\|archive" site/index.html | head || true
           grep -n '"archive' site/dmloader_*.js | head  || true
-          ls -la site
+          mkdir site/debug
+          cp -r dist_debug/*/* site/debug/
+          ls -la site site/debug
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
