@@ -39,14 +39,17 @@ jobs:
           mkdir site
           cp -r dist/*/* site/
           touch site/.nojekyll
-          # свои имена файлов игры у каждой сборки: браузер не возьмёт старые из кэша (Pages кэширует 10 мин)
+          # свои имена файлов у каждой сборки: Pages разрешает браузеру 10 минут держать старые файлы.
+          # Новый index.html ссылается на dmloader_<v>.js и archive_<v>/; старые имена тоже остаются
+          # (копии), чтобы закэшированный старый index.html не сломался.
           V=${GITHUB_SHA::8}
-          if [ -d site/archive ] && grep -q '"archive" + path' site/index.html; then
-            mv site/archive "site/archive_$V"
-            sed -i "s|\"archive\" + path|\"archive_$V\" + path|" site/index.html
+          if grep -q '"archive" + path' site/dmloader.js; then
+            cp -r site/archive "site/archive_$V"
+            sed "s|\"archive\" + path|\"archive_$V\" + path|" site/dmloader.js > "site/dmloader_$V.js"
+            sed -i "s|dmloader\.js|dmloader_$V.js|g; s|archive/archive_files\.json|archive_$V/archive_files.json|g" site/index.html
           fi
-          grep -n "archive" site/index.html | head
-          grep -n -o '.\{0,70\}archive.\{0,70\}' site/dmloader.js | head -30; grep -n -i 'archive\|CUSTOM\|location' site/index.html | head -20
+          grep -n "dmloader\|archive" site/index.html | head || true
+          grep -n '"archive' site/dmloader_*.js | head  || true
           ls -la site
       - uses: actions/upload-pages-artifact@v3
         with:
