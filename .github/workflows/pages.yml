@@ -46,7 +46,7 @@ jobs:
             sed -i "s|\"archive\" + path|\"archive_$V\" + path|" site/index.html
           fi
           grep -n "archive" site/index.html | head
-          grep -o '.\{60\}archive.\{60\}' site/dmloader.js | head -20
+          grep -n -o '.\{0,70\}archive.\{0,70\}' site/dmloader.js | head -30; grep -n -i 'archive\|CUSTOM\|location' site/index.html | head -20
           ls -la site
       - uses: actions/upload-pages-artifact@v3
         with:
